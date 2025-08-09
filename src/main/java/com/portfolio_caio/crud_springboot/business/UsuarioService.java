@@ -19,8 +19,8 @@ public class UsuarioService {
 		repository.saveAndFlush(usuario);
 	}
 	
-	public Usuario searchUser(String email, String password) {
-		return repository.findAccount(email.trim(), password)
+	public Usuario searchUser(String email) {
+		return repository.findAccount(email.trim())
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
 		);
 	}

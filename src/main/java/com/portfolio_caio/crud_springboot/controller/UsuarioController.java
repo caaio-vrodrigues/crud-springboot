@@ -23,16 +23,15 @@ public class UsuarioController {
 	
 	@PostMapping("/login") //create
 	public ResponseEntity<Void> salvarUsuario(@RequestBody Usuario usuario){
-		usuarioService.searchUser(usuario.getEmail(), usuario.getPassword());
+		usuarioService.searchUser(usuario.getEmail());
 		return ResponseEntity.ok().build();
 	}
 	
 	@GetMapping //read
 	public ResponseEntity<?> buscarUsuarioPorEmail(
-			@RequestParam(required=true) String email, 
-			@RequestParam(required=true) String password){
+			@RequestParam(required=true) String email){
 		try {
-			Usuario usuario = usuarioService.searchUser(email.trim(), password);
+			Usuario usuario = usuarioService.searchUser(email.trim());
 			return ResponseEntity.ok(usuario);
 		}
 		catch(RuntimeException e) {

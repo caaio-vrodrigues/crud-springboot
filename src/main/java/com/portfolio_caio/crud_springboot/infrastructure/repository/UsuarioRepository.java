@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.portfolio_caio.crud_springboot.infrastructure.entitys.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer>{
-	Optional<Usuario> findAccount(String email, String password);
+	Optional<Usuario> findAccount(String email);
 	
 	@Transactional
 	void deleteByEmail(String email);
