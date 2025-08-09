@@ -21,16 +21,18 @@ import lombok.RequiredArgsConstructor;
 public class UsuarioController {
 	private final UsuarioService usuarioService;
 	
-	@PostMapping //create
+	@PostMapping("/login") //create
 	public ResponseEntity<Void> salvarUsuario(@RequestBody Usuario usuario){
-		usuarioService.salvarUsuario(usuario);
+		usuarioService.searchUser(usuario.getEmail(), usuario.getPassword());
 		return ResponseEntity.ok().build();
 	}
 	
 	@GetMapping //read
-	public ResponseEntity<?> buscarUsuarioPorEmail(@RequestParam(required=true) String email){
+	public ResponseEntity<?> buscarUsuarioPorEmail(
+			@RequestParam(required=true) String email, 
+			@RequestParam(required=true) String password){
 		try {
-			Usuario usuario = usuarioService.buscarUsuarioPorEmail(email.trim());
+			Usuario usuario = usuarioService.searchUser(email.trim(), password);
 			return ResponseEntity.ok(usuario);
 		}
 		catch(RuntimeException e) {
@@ -39,8 +41,9 @@ public class UsuarioController {
 	}
 	
 	@PutMapping //update
-	public ResponseEntity<Void> atualizarUsuarioPorId(@RequestParam Integer id, 
-													 @RequestBody Usuario usuario){
+	public ResponseEntity<Void> atualizarUsuarioPorId(
+			@RequestParam Integer id, 
+			@RequestBody Usuario usuario){
 		usuarioService.atualizarUsuarioPorId(id, usuario);
 		return ResponseEntity.ok().build();
 	}

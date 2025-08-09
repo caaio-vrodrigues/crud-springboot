@@ -19,8 +19,8 @@ public class UsuarioService {
 		repository.saveAndFlush(usuario);
 	}
 	
-	public Usuario buscarUsuarioPorEmail(String email) {
-		return repository.findByEmailIgnoreCase(email.trim())
+	public Usuario searchUser(String email, String password) {
+		return repository.findAccount(email.trim(), password)
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
 		);
 	}
@@ -35,7 +35,7 @@ public class UsuarioService {
 		);
 		Usuario usuarioAtualizado = Usuario.builder()
 				.email(usuario.getEmail() != null ? usuario.getEmail() : usuarioEntity.getEmail())
-				.nome(usuario.getNome() != null ? usuario.getNome() : usuarioEntity.getNome())
+				.password(usuario.getPassword() != null ? usuario.getPassword() : usuarioEntity.getPassword())
 				.id(usuarioEntity.getId())
 				.build();
 		
