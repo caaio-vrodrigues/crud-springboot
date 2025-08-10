@@ -10,20 +10,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.portfolio_caio.crud_springboot.business.UsuarioService;
-import com.portfolio_caio.crud_springboot.infrastructure.entitys.Usuario;
+import com.portfolio_caio.crud_springboot.business.UserClientService;
+import com.portfolio_caio.crud_springboot.infrastructure.entitys.UserClient;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/user")
 @RequiredArgsConstructor
-public class UsuarioController {
-	private final UsuarioService usuarioService;
+public class UserClientController {
+	private final UserClientService usuarioService;
 	
-	@PostMapping("/login") //create
-	public ResponseEntity<Void> salvarUsuario(@RequestBody Usuario usuario){
-		usuarioService.searchUser(usuario.getEmail());
+	@PostMapping //create
+	public ResponseEntity<Void> createUser(@RequestBody UserClient userClient){
+		usuarioService.salvarUsuario(userClient);
 		return ResponseEntity.ok().build();
 	}
 	
@@ -31,7 +31,7 @@ public class UsuarioController {
 	public ResponseEntity<?> buscarUsuarioPorEmail(
 			@RequestParam(required=true) String email){
 		try {
-			Usuario usuario = usuarioService.searchUser(email.trim());
+			UserClient usuario = usuarioService.buscarUsuarioPorEmail(email.trim());
 			return ResponseEntity.ok(usuario);
 		}
 		catch(RuntimeException e) {
@@ -42,8 +42,8 @@ public class UsuarioController {
 	@PutMapping //update
 	public ResponseEntity<Void> atualizarUsuarioPorId(
 			@RequestParam Integer id, 
-			@RequestBody Usuario usuario){
-		usuarioService.atualizarUsuarioPorId(id, usuario);
+			@RequestBody UserClient userClient){
+		usuarioService.atualizarUsuarioPorId(id, userClient);
 		return ResponseEntity.ok().build();
 	}
 	

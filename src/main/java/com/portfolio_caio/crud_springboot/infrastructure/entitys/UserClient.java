@@ -13,9 +13,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Usuario")
+@Table(name = "user-client")
 @Entity
-public class Usuario {
+public class UserClient {
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.AUTO) 
 	 private Integer id; 
