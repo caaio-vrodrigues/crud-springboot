@@ -15,21 +15,21 @@ public class UserClientService {
 		this.repository = repository;
 	}
 	
-	public void salvarUsuario(UserClient userClient) {
+	public void saveUser(UserClient userClient) {
 		repository.saveAndFlush(userClient);
 	}
 	
-	public UserClient buscarUsuarioPorEmail(String email) {
-		return repository.findByEmailIgnoreCase(email.trim())
+	public UserClient searchUser(String email) {
+		return repository.findUser(email.trim())
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
 		);
 	}
 	
-	public void deleteUsuarioPorEmail(String email) {
+	public void deleteUserByEmail(String email) {
 		repository.deleteByEmail(email);
 	}
 	
-	public void atualizarUsuarioPorId(Integer id, UserClient client) {
+	public void updateUserById(Integer id, UserClient client) {
 		UserClient usuarioEntity = repository.findById(id).orElseThrow(
 			() -> new RuntimeException("Usuário não encontrado")
 		);
