@@ -15,6 +15,8 @@ public interface UserClientRepository extends JpaRepository<UserClient, Integer>
 	@Transactional
 	void deleteByEmail(String email);
 	
-	@Query("SELECT u FROM UserClient u WHERE u.email = :email")
-	Optional<UserClient> findUser(@Param("email") String email);
+	@Query("SELECT u FROM UserClient u WHERE u.email = :email AND u.password = :password")
+	Optional<UserClient> findUser(
+		@Param("email") String email,
+		@Param("password") String password);
 }

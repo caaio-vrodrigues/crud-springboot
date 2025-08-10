@@ -29,9 +29,10 @@ public class UserClientController {
 	
 	@GetMapping 
 	public ResponseEntity<?> readUser(
-			@RequestParam(required=true) String email){
+			@RequestParam(required=true) String email,
+			@RequestParam(required=true) String password){
 		try {
-			UserClient usuario = usuarioService.searchUser(email.trim());
+			UserClient usuario = usuarioService.searchUser(email, password);
 			return ResponseEntity.ok(usuario);
 		}
 		catch(RuntimeException e) {

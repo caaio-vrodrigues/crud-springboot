@@ -19,9 +19,11 @@ public class UserClientService {
 		repository.saveAndFlush(userClient);
 	}
 	
-	public UserClient searchUser(String email) {
-		return repository.findUser(email.trim())
-			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado")
+	public UserClient searchUser(String email, String password) {
+		return repository.findUser(email, password)
+			.orElseThrow(() -> 
+				new ResponseStatusException(
+					HttpStatus.NOT_FOUND, "Usuário não encontrado")
 		);
 	}
 	
@@ -33,11 +35,15 @@ public class UserClientService {
 		UserClient usuarioEntity = repository.findById(id).orElseThrow(
 			() -> new RuntimeException("Usuário não encontrado")
 		);
-		UserClient usuarioAtualizado = UserClient.builder()
-				.email(client.getEmail() != null ? client.getEmail() : usuarioEntity.getEmail())
-				.password(client.getPassword() != null ? client.getPassword() : usuarioEntity.getPassword())
-				.id(usuarioEntity.getId())
-				.build();
+		final String email = client.getEmail() != null ? 
+			client.getEmail() : usuarioEntity.getEmail();
+		final String password = client.getPassword() != null ? 
+			client.getPassword() : usuarioEntity.getPassword();
+		final UserClient usuarioAtualizado = UserClient.builder()
+			.email(email)
+			.password(password)
+			.id(usuarioEntity.getId())
+			.build();
 		
 		repository.saveAndFlush(usuarioAtualizado);
 	}
