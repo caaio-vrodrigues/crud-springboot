@@ -10,15 +10,12 @@ import com.portfolio_caio.crud_springboot.infrastructure.repository.UserClientRe
 @Service
 public class UserClientService {
 	private final UserClientRepository repository;
-	
 	public UserClientService(UserClientRepository repository) {
 		this.repository = repository;
 	}
-	
 	public void saveUser(UserClient userClient) {
 		repository.saveAndFlush(userClient);
 	}
-	
 	public UserClient searchUser(String email, String password) {
 		return repository.findUser(email, password)
 			.orElseThrow(() -> 
@@ -26,11 +23,9 @@ public class UserClientService {
 					HttpStatus.NOT_FOUND, "Usuário não encontrado")
 		);
 	}
-	
 	public void deleteUserByEmail(String email) {
 		repository.deleteByEmail(email);
 	}
-	
 	public void updateUserById(Integer id, UserClient client) {
 		UserClient usuarioEntity = repository.findById(id).orElseThrow(
 			() -> new RuntimeException("Usuário não encontrado")
@@ -44,7 +39,6 @@ public class UserClientService {
 			.password(password)
 			.id(usuarioEntity.getId())
 			.build();
-		
 		repository.saveAndFlush(usuarioAtualizado);
 	}
 }

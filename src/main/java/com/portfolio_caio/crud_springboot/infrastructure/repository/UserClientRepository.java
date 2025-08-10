@@ -11,10 +11,8 @@ import com.portfolio_caio.crud_springboot.infrastructure.entitys.UserClient;
 
 public interface UserClientRepository extends JpaRepository<UserClient, Integer>{
 	Optional<UserClient> findByEmailIgnoreCase(String email);
-	
 	@Transactional
 	void deleteByEmail(String email);
-	
 	@Query("SELECT u FROM UserClient u WHERE u.email = :email AND u.password = :password")
 	Optional<UserClient> findUser(
 		@Param("email") String email,
