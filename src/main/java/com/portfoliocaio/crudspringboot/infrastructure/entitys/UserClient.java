@@ -1,4 +1,4 @@
-package com.portfolio_caio.crud_springboot.infrastructure.entitys;
+package com.portfoliocaio.crudspringboot.infrastructure.entitys;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,4 +1,4 @@
-package com.portfolio_caio.crud_springboot.controller;
+package com.portfoliocaio.crudspringboot.controller;
 
 import java.util.UUID;
 
@@ -14,12 +14,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.portfolio_caio.crud_springboot.business.UserClientService;
-import com.portfolio_caio.crud_springboot.infrastructure.entitys.UserClient;
-import com.portfolio_caio.crud_springboot.security.JwtService;
-// Ajuste estes imports conforme o pacote real dos seus DTOs (ex.: auth.dto)
-import com.portfolio_caio.crud_springboot.auth.dto.LoginRequest;
-import com.portfolio_caio.crud_springboot.auth.dto.TokenResponse;
+import com.portfoliocaio.crudspringboot.business.UserClientService;
+import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
+import com.portfoliocaio.crudspringboot.security.JwtService;
+import com.portfoliocaio.crudspringboot.auth.dto.LoginRequest;
+import com.portfoliocaio.crudspringboot.auth.dto.TokenResponse;
 
 import lombok.RequiredArgsConstructor;
 

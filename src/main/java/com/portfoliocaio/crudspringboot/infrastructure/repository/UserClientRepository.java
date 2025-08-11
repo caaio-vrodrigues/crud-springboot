@@ -1,4 +1,4 @@
-package com.portfolio_caio.crud_springboot.infrastructure.repository;
+package com.portfoliocaio.crudspringboot.infrastructure.repository;
 
 import java.util.Optional;
 
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.portfolio_caio.crud_springboot.infrastructure.entitys.UserClient;
+import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
 
 public interface UserClientRepository extends JpaRepository<UserClient, Integer>{
 	Optional<UserClient> findByEmailIgnoreCase(String email);

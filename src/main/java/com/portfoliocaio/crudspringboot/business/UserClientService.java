@@ -1,11 +1,11 @@
-package com.portfolio_caio.crud_springboot.business;
+package com.portfoliocaio.crudspringboot.business;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.portfolio_caio.crud_springboot.infrastructure.entitys.UserClient;
-import com.portfolio_caio.crud_springboot.infrastructure.repository.UserClientRepository;
+import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
+import com.portfoliocaio.crudspringboot.infrastructure.repository.UserClientRepository;
 
 @Service
 public class UserClientService {

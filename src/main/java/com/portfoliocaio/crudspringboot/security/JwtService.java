@@ -1,4 +1,4 @@
-package com.portfolio_caio.crud_springboot.security;
+package com.portfoliocaio.crudspringboot.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
