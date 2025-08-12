@@ -18,7 +18,7 @@ import lombok.*;
 public class UserClient {
 	 @Id
 	 @GeneratedValue(strategy = GenerationType.AUTO) 
-	 private Integer id; 
+	 private Long id; 
 	 
 	 @Column(name = "email", unique = true)
 	 private String email;

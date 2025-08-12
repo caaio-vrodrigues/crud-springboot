@@ -15,35 +15,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portfoliocaio.crudspringboot.business.UserClientService;
-import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
+// [REMOVIDO] import da entidade UserClient
 import com.portfoliocaio.crudspringboot.security.JwtService;
 
 import jakarta.validation.Valid;
 
 import com.portfoliocaio.crudspringboot.auth.dto.LoginRequest;
 import com.portfoliocaio.crudspringboot.auth.dto.TokenResponse;
+import com.portfoliocaio.crudspringboot.auth.dto.UserDto; // [ADICIONADO] uso do UserDto
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserClientController {
-
     private final UserClientService usuarioService;
     private final JwtService jwtService;
 
-    @PostMapping
-    public ResponseEntity<Void> createUser(@RequestBody UserClient userClient) {
-        usuarioService.saveUser(userClient);
+    @PostMapping("/create")
+    public ResponseEntity<Void> createUser(@Valid @RequestBody UserDto userDto) { 
+        usuarioService.saveUser(userDto); 
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest body) {
         try {
-            UserClient usuario = usuarioService.searchUser(body.email(), body.password());
+            UserDto usuario = usuarioService.searchUser(body.email(), body.password());
             String token = UUID.randomUUID().toString();
             return ResponseEntity.ok(new TokenResponse(token));
         } catch (RuntimeException e) {
@@ -51,7 +51,7 @@ public class UserClientController {
         }
     }
     
-    @GetMapping("/auth/validate")
+    @GetMapping("/validate")
     public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authorization) {
         try {
             String token = authorization.replace("Bearer ", "").trim();
@@ -70,8 +70,8 @@ public class UserClientController {
             @RequestParam(required = true) String email,
             @RequestParam(required = true) String password) {
         try {
-            UserClient usuario = usuarioService.searchUser(email, password);
-            return ResponseEntity.ok(usuario);
+            UserDto usuario = usuarioService.searchUser(email, password);
+            return ResponseEntity.ok(usuario); 
         } catch (RuntimeException e) {
             return ResponseEntity.status(404).body("Usuário não encontrado");
         }
@@ -80,8 +80,8 @@ public class UserClientController {
     @PutMapping
     public ResponseEntity<Void> updateUser(
             @RequestParam Integer id,
-            @RequestBody UserClient userClient) {
-        usuarioService.updateUserById(id, userClient);
+            @RequestBody UserDto userDto) { 
+        usuarioService.updateUserById(id, userDto);
         return ResponseEntity.ok().build();
     }
 
