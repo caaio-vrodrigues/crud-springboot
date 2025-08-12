@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
+import com.portfoliocaio.crudspringboot.infrastructure.entities.UserClient;
 
 public interface UserClientRepository extends JpaRepository<UserClient, Integer>{
 	Optional<UserClient> findByEmailIgnoreCase(String email);

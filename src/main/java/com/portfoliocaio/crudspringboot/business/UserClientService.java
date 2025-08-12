@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.portfoliocaio.crudspringboot.auth.dto.UserDto;
-import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
+import com.portfoliocaio.crudspringboot.infrastructure.entities.UserClient;
 import com.portfoliocaio.crudspringboot.infrastructure.repository.UserClientRepository;
 
 @Service
