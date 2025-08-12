@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.portfoliocaio.crudspringboot.business.UserClientService;
 import com.portfoliocaio.crudspringboot.infrastructure.entitys.UserClient;
 import com.portfoliocaio.crudspringboot.security.JwtService;
+
+import jakarta.validation.Valid;
+
 import com.portfoliocaio.crudspringboot.auth.dto.LoginRequest;
 import com.portfoliocaio.crudspringboot.auth.dto.TokenResponse;
 
@@ -38,10 +41,9 @@ public class UserClientController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest body) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest body) {
         try {
             UserClient usuario = usuarioService.searchUser(body.email(), body.password());
-            // Token simples para portfólio (não é JWT real)
             String token = UUID.randomUUID().toString();
             return ResponseEntity.ok(new TokenResponse(token));
         } catch (RuntimeException e) {
