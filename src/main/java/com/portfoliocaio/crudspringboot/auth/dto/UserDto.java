@@ -6,9 +6,11 @@ import jakarta.validation.constraints.Size;
 import java.util.Locale;
 
 public record UserDto(
-        Long id,
-        @NotBlank @Email String email,
-        @NotBlank @Size(min = 8) String password
+    Long id,
+    @NotBlank @Email 
+    String email,
+    @NotBlank @Size(min = 8) 
+    String password
 ) {
     public UserDto {
         if (password != null) {
