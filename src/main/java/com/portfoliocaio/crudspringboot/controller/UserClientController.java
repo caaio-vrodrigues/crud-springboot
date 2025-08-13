@@ -18,78 +18,92 @@ import com.portfoliocaio.crudspringboot.security.JwtService;
 
 import jakarta.validation.Valid;
 
+import com.portfoliocaio.crudspringboot.auth.dto.ErrorPayload;
 import com.portfoliocaio.crudspringboot.auth.dto.LoginRequest;
 import com.portfoliocaio.crudspringboot.auth.dto.TokenResponse;
 import com.portfoliocaio.crudspringboot.auth.dto.UserDto;
+import com.portfoliocaio.crudspringboot.auth.dto.ValidateTokenResponse;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 
-@Log4j2
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserClientController {
-    private final UserClientService usuarioService;
+    private final UserClientService userService;
     private final JwtService jwtService;
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createUser(@Valid @RequestBody UserDto userDto) { 
-        usuarioService.saveUser(userDto); 
+    public ResponseEntity<Void> createUser(@Valid @RequestBody UserDto body) { 
+        userService.saveUser(body); 
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest body) {
         try {
-            UserDto usuario = usuarioService.searchUser(body.email(), body.password());
-            log.info("Gerando token para {}", body.email());
+            userService.searchUser(body.email(), body.password());
             String token = jwtService.generateToken(body.email());
-            log.info("Token gerado com sucesso");
             return ResponseEntity.ok(new TokenResponse(token));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(401).body("Credenciais inválidas");
+        } 
+        catch (RuntimeException e) {
+            return ResponseEntity
+                .status(401)
+                .body(ErrorPayload.of(401, "Credenciais inválidas", "/auth/login"));
         }
     }
     
     @GetMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> validateToken(
+        @RequestHeader("Authorization") String authorization) 
+    {
         try {
             String token = authorization.replace("Bearer ", "").trim();
             if (!jwtService.isValid(token)) {
-                return ResponseEntity.status(401).body("Token inválido");
+                return ResponseEntity
+                    .status(401)
+                    .body(ErrorPayload.of(401, "Token inválido", "/auth/validate"));
             }
             String email = jwtService.extractSubject(token);
-            return ResponseEntity.ok("Token válido para: " + email);
-        } catch (Exception e) {
-            return ResponseEntity.status(401).body("Token inválido");
+            Long exp = null;
+            return ResponseEntity.ok(new ValidateTokenResponse(true, email, exp));
+        } 
+        catch (Exception e) {
+            return ResponseEntity
+	            .status(401)
+	            .body(ErrorPayload.of(401, "Token inválido", "/auth/validate"));
         }
     }
     
     @GetMapping
     public ResponseEntity<?> readUser(
-            @RequestParam(required = true) String email,
-            @RequestParam(required = true) String password) {
+        @RequestParam(required = true) String email,
+        @RequestParam(required = true) String password) 
+    {
         try {
-            UserDto usuario = usuarioService.searchUser(email, password);
+            UserDto usuario = userService.searchUser(email, password);
             return ResponseEntity.ok(usuario); 
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(404).body("Usuário não encontrado");
+        } 
+        catch (RuntimeException e) {
+            return ResponseEntity
+                .status(404)
+                .body(ErrorPayload.of(404, "Usuário não encontrado", "/auth"));
         }
     }
 
     @PutMapping
     public ResponseEntity<Void> updateUser(
             @RequestParam Integer id,
-            @RequestBody UserDto userDto) { 
-        usuarioService.updateUserById(id, userDto);
+            @RequestBody UserDto userDto) 
+    { 
+        userService.updateUserById(id, userDto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Void> deleteUser(@RequestParam String email) {
-        usuarioService.deleteUserByEmail(email);
+        userService.deleteUserByEmail(email);
         return ResponseEntity.ok().build();
     }
 }

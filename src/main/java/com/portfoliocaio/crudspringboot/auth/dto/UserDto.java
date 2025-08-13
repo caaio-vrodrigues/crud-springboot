@@ -9,7 +9,7 @@ public record UserDto(
     Long id,
     @NotBlank @Email 
     String email,
-    @NotBlank @Size(min = 8) 
+    @NotBlank @Size(min=8) 
     String password
 ) {
     public UserDto {
@@ -23,6 +23,6 @@ public record UserDto(
 
     @Override
     public String toString() {
-        return "UserDto[id=%s, email=***]".formatted(id, email);
+        return "UserDto[id=%s, email=***]".formatted(id);
     }
 }

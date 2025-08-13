@@ -158,7 +158,8 @@ public class UserClientService {
     }
 
     private UserDto toSafeDto(UserClient entity) {
-        return new UserDto(entity.getId(), normalizeEmail(entity.getEmail()), null);
+        return new UserDto(
+        		entity.getId(), normalizeEmail(entity.getEmail()), null);
     }
 
     private boolean isLocked(String key) { 
