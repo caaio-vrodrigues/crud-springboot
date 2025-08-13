@@ -24,10 +24,9 @@ public class UserClientService {
     private static final Duration WINDOW = Duration.ofSeconds(20);
     private static final Duration LOCKOUT_DURATION = Duration.ofSeconds(20);
     private final Map<String, AttemptInfo> attempts = new ConcurrentHashMap<>();
-    private static final Logger log = LoggerFactory.getLogger(
-						    			UserClientService.class
-						    		);
-
+    private static final Logger log = LoggerFactory
+    									.getLogger(UserClientService.class);
+    
     public UserClientService(UserClientRepository repository) {
         this.repository = repository;
     }
@@ -181,9 +180,7 @@ public class UserClientService {
         }
     }
 
-    private void resetAttempts(String key) {
-        attempts.remove(key);
-    }
+    private void resetAttempts(String key) { attempts.remove(key); }
 
     private String maskEmail(String email) { 
         if (email == null || !email.contains("@")) return "***";
