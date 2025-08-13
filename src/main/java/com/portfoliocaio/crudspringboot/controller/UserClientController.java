@@ -1,7 +1,5 @@
 package com.portfoliocaio.crudspringboot.controller;
 
-import java.util.UUID;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,17 +13,19 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.portfoliocaio.crudspringboot.business.UserClientService;
-// [REMOVIDO] import da entidade UserClient
+
 import com.portfoliocaio.crudspringboot.security.JwtService;
 
 import jakarta.validation.Valid;
 
 import com.portfoliocaio.crudspringboot.auth.dto.LoginRequest;
 import com.portfoliocaio.crudspringboot.auth.dto.TokenResponse;
-import com.portfoliocaio.crudspringboot.auth.dto.UserDto; // [ADICIONADO] uso do UserDto
+import com.portfoliocaio.crudspringboot.auth.dto.UserDto;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -44,7 +44,9 @@ public class UserClientController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest body) {
         try {
             UserDto usuario = usuarioService.searchUser(body.email(), body.password());
-            String token = UUID.randomUUID().toString();
+            log.info("Gerando token para {}", body.email());
+            String token = jwtService.generateToken(body.email());
+            log.info("Token gerado com sucesso");
             return ResponseEntity.ok(new TokenResponse(token));
         } catch (RuntimeException e) {
             return ResponseEntity.status(401).body("Credenciais inválidas");

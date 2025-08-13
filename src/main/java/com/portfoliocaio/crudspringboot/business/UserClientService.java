@@ -2,6 +2,7 @@ package com.portfoliocaio.crudspringboot.business;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,13 +20,13 @@ import com.portfoliocaio.crudspringboot.infrastructure.repository.UserClientRepo
 
 @Service
 public class UserClientService {
-	private final UserClientRepository repository;
+    private final UserClientRepository repository;
     private static final int MAX_ATTEMPTS = 10;
     private static final Duration WINDOW = Duration.ofSeconds(20);
     private static final Duration LOCKOUT_DURATION = Duration.ofSeconds(20);
     private final Map<String, AttemptInfo> attempts = new ConcurrentHashMap<>();
     private static final Logger log = LoggerFactory
-    									.getLogger(UserClientService.class);
+                                        .getLogger(UserClientService.class);
     
     public UserClientService(UserClientRepository repository) {
         this.repository = repository;
@@ -36,42 +37,47 @@ public class UserClientService {
         final UserClient entity = toEntity(userDto);
         repository.save(entity); 
         log.info("user-created email={} actor={}",
-    			maskEmail(entity.getEmail()), 
-    			currentActor()
-    		);
+                maskEmail(entity.getEmail()), 
+                "anonymous"
+            );
         return entity.getId();
     }
 
-    @Transactional(readOnly=true)
+    @Transactional
     public UserDto searchUser(String email, String password) {
-        if (isLocked(email)) {
+        final String normalizedEmail = normalizeEmail(email);
+
+        if (isLocked(normalizedEmail)) {
             log.warn("login-locked email={} actor={}", 
-            		maskEmail(email), 
-            		currentActor()
-            	);
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, 
-            			"Muitas tentativas. Tente novamente dentro de 20 segundos."
-            		);
+                    maskEmail(normalizedEmail), 
+                    "anonymous"
+                );
+            throw new ResponseStatusException(
+                HttpStatus.TOO_MANY_REQUESTS, 
+                "Muitas tentativas. Tente novamente dentro de 20 segundos."
+            );
         }
 
-        return repository.findUser(email, password)
+        return repository.findByEmailIgnoreCase(normalizedEmail)
+            .filter(entity -> entity.getPassword().equals(password))
             .map(entity -> {
-                resetAttempts(email);
+                resetAttempts(normalizedEmail);
                 log.info("login-success email={} actor={}", 
-                		maskEmail(email), 
-                		currentActor()
-                	);
+                        maskEmail(normalizedEmail), 
+                        "anonymous"
+                    );
                 return toSafeDto(entity);
             })
             .orElseThrow(() -> {
-                registerFailure(email);
+                registerFailure(normalizedEmail);
                 log.warn("login-failed email={} actor={}", 
-                		maskEmail(email), 
-                		currentActor()
-                	);
-                return new ResponseStatusException(HttpStatus.UNAUTHORIZED, 
-	                			"Credenciais inválidas"
-	                		);
+                        maskEmail(normalizedEmail), 
+                        "anonymous"
+                    );
+                return new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED, 
+                    "Credenciais inválidas"
+                );
             });
     }
 
@@ -82,24 +88,27 @@ public class UserClientService {
 
     @Transactional 
     public boolean deleteUserByEmail(String email) {
-        long deleted = repository.deleteByEmail(email);
+        final String normalizedEmail = normalizeEmail(email);
+
+        long deleted = repository.deleteByEmail(normalizedEmail);
         if (deleted == 0) {
             log.info("user-delete-none email={} actor={}", 
-        			maskEmail(email), 
-        			currentActor()
-        		);
+                    maskEmail(normalizedEmail), 
+                    "anonymous"
+                );
             return false;
         }
         if (deleted > 1) {
             log.warn("user-delete-multiple email={} count={} actor={}", 
-	        		maskEmail(email), 
-	        		deleted, 
-	        		currentActor());
+            		maskEmail(normalizedEmail), 
+            		deleted, 
+            		"anonymous"
+            	);
         } else {
             log.info("user-deleted email={} actor={}", 
-            		maskEmail(email), 
-            		currentActor()
-            	);
+                    maskEmail(normalizedEmail), 
+                    "anonymous"
+                );
         }
         return true;
     }
@@ -109,54 +118,57 @@ public class UserClientService {
         try {
             final UserClient userEntity = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
-                							HttpStatus.NOT_FOUND,
-			                				"Recurso não encontrado")
-			                			); 
-            if (dto.email() != null) userEntity.setEmail(dto.email());
+                                            HttpStatus.NOT_FOUND,
+                            				"Recurso não encontrado")
+                            			); 
+            if (dto.email() != null) {
+                userEntity.setEmail(normalizeEmail(dto.email()));
+            }
             if (dto.password() != null) userEntity.setPassword(dto.password());
             repository.save(userEntity);
             log.info("user-updated id={} email={} actor={}", 
-            		userEntity.getId(), 
-            		maskEmail(userEntity.getEmail()), 
-            		currentActor()
-            	);
+                    userEntity.getId(), 
+                    maskEmail(userEntity.getEmail()), 
+                    "anonymous"
+                );
             return true;
         } 
-        catch (OptimisticLockingFailureException e) { // trata concorrência
-            log.warn("user-update-conflict id={} actor={}", id, currentActor());
+        catch (OptimisticLockingFailureException e) {
+            log.warn("user-update-conflict id={} actor={}", id, "anonymous");
             throw new ResponseStatusException(
-            			HttpStatus.CONFLICT, 
-            			"Conflito de atualização. Recarregue e tente novamente."
-            		);
+                        HttpStatus.CONFLICT, 
+                        "Conflito de atualização. Recarregue e tente novamente."
+                    );
         }
     }
 
     private UserClient toEntity(UserDto dto) {
         return UserClient.builder()
             .id(dto.id())
-            .email(dto.email())
+            .email(normalizeEmail(dto.email()))
             .password(dto.password())
             .build();
     }
 
     private UserDto toDto(UserClient entity) {
         return new UserDto(entity.getId(), 
-		        		entity.getEmail(), 
-		        		entity.getPassword()
-		        	);
+                		normalizeEmail(entity.getEmail()),
+                		entity.getPassword()
+                	);
     }
 
     private UserDto toSafeDto(UserClient entity) {
-        return new UserDto(entity.getId(), entity.getEmail(), null);
+        return new UserDto(entity.getId(), normalizeEmail(entity.getEmail()), null);
     }
 
     private boolean isLocked(String key) { 
+        if (key == null) return false;
         AttemptInfo info = attempts.get(key);
         if (info == null) return false;
         if (info.lockUntil != null && 
-        		Instant.now().isBefore(info.lockUntil)) return true;
+                Instant.now().isBefore(info.lockUntil)) return true;
         if (info.firstAttemptAt != null && 
-        		Instant.now().isAfter(info.firstAttemptAt.plus(WINDOW))) 
+                Instant.now().isAfter(info.firstAttemptAt.plus(WINDOW))) 
         {
             attempts.remove(key);
             return false;
@@ -165,10 +177,11 @@ public class UserClientService {
     }
 
     private void registerFailure(String key) {
+        if (key == null) return;
         AttemptInfo info = attempts
-        		.computeIfAbsent(key, k -> new AttemptInfo());
+                .computeIfAbsent(key, k -> new AttemptInfo());
         if (info.firstAttemptAt == null || 
-        		Instant.now().isAfter(info.firstAttemptAt.plus(WINDOW))) 
+                Instant.now().isAfter(info.firstAttemptAt.plus(WINDOW))) 
         {
             info.firstAttemptAt = Instant.now();
             info.count = 0;
@@ -180,7 +193,10 @@ public class UserClientService {
         }
     }
 
-    private void resetAttempts(String key) { attempts.remove(key); }
+    private void resetAttempts(String key) { 
+        if (key == null) return;
+        attempts.remove(key); 
+    }
 
     private String maskEmail(String email) { 
         if (email == null || !email.contains("@")) return "***";
@@ -188,16 +204,12 @@ public class UserClientService {
         String local = parts[0];
         String domain = parts[1];
         String maskedLocal = local.length() <= 2 ? 
-        		"**" : local.charAt(0) + "***" + local.charAt(local.length() - 1);
-        return maskedLocal + "@" + domain;
+                "**" : local.charAt(0) + "***" + local.charAt(local.length() - 1);
+        return (maskedLocal + "@" + domain).toLowerCase(Locale.ROOT);
     }
 
-    private String currentActor() { 
-        try {
-            return "anonymous";
-        } catch (Exception e) {
-            return "error from service; current actor";
-        }
+    private String normalizeEmail(String email) {
+        return (email == null) ? null : email.toLowerCase(Locale.ROOT);
     }
 
     private static class AttemptInfo {
