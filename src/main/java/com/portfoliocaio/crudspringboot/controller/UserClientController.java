@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "https://projeto-login-client-side.vercel.app")
 public class UserClientController {
     private final UserClientService userService;
     private final JwtService jwtService;
