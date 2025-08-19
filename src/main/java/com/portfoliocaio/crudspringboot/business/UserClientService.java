@@ -16,7 +16,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.portfoliocaio.crudspringboot.auth.dto.UserDto;
 import com.portfoliocaio.crudspringboot.infrastructure.entities.UserClient;
-import com.portfoliocaio.crudspringboot.infrastructure.repository.UserClientRepository;
+import com.portfoliocaio.crudspringboot.infrastructure
+											.repository.UserClientRepository;
 
 @Service
 public class UserClientService {

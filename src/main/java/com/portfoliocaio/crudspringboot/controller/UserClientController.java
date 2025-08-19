@@ -50,7 +50,8 @@ public class UserClientController {
         catch (RuntimeException e) {
             return ResponseEntity
                 .status(401)
-                .body(ErrorPayload.of(401, "Credenciais inválidas", "/auth/login"));
+                .body(ErrorPayload
+                		.of(401, "Credenciais inválidas", "/auth/login"));
         }
     }
     
@@ -63,7 +64,8 @@ public class UserClientController {
             if (!jwtService.isValid(token)) {
                 return ResponseEntity
                     .status(401)
-                    .body(ErrorPayload.of(401, "Token inválido", "/auth/validate"));
+                    .body(ErrorPayload
+                    		.of(401, "Token inválido", "/auth/validate"));
             }
             String email = jwtService.extractSubject(token);
             Long exp = null;
