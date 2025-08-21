@@ -25,7 +25,6 @@ import com.portfoliocaio.crudspringboot.auth.dto.UserDto;
 import com.portfoliocaio.crudspringboot.auth.dto.ValidateTokenResponse;
 
 import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -33,6 +32,11 @@ import lombok.RequiredArgsConstructor;
 public class UserClientController {
     private final UserClientService userService;
     private final JwtService jwtService;
+    
+    @PostMapping("/ping")
+    public ResponseEntity<Void> preventColdStart(){
+    	return ResponseEntity.ok().build();
+    }
 
     @PostMapping("/create")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDto body) { 
