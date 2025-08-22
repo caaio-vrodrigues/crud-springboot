@@ -1,10 +1,7 @@
 package com.portfoliocaio.crudspringboot.controller;
 
-import java.util.concurrent.TimeUnit;
-
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +19,7 @@ import com.portfoliocaio.crudspringboot.security.JwtService;
 
 import jakarta.validation.Valid;
 
+import com.portfoliocaio.crudspringboot.WarmupService;
 import com.portfoliocaio.crudspringboot.auth.dto.ErrorPayload;
 import com.portfoliocaio.crudspringboot.auth.dto.LoginRequest;
 import com.portfoliocaio.crudspringboot.auth.dto.TokenResponse;
@@ -36,32 +34,15 @@ import lombok.RequiredArgsConstructor;
 public class UserClientController {
     private final UserClientService userService;
     private final JwtService jwtService;
-    private final JdbcTemplate jdbcTemplate;
+    private final WarmupService warmupService;
     
     @PostMapping("/ping")
     public ResponseEntity<Void> preventColdStart() {
-        long start = System.nanoTime();
-        try {
-            jdbcTemplate.queryForObject("SELECT 1", Integer.class);
-
-            String warmToken = jwtService.generateToken("warmup@local");
-            jwtService.isValid(warmToken);
-            jwtService.extractSubject(warmToken);
-
-            long ms = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
-            return ResponseEntity
-                    .ok()
-                    .cacheControl(CacheControl.noStore())
-                    .header("X-Warmup-Duration-ms", String.valueOf(ms))
-                    .build();
-        } catch (Exception e) {
-            long ms = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
-            return ResponseEntity.ok() 
-                    .cacheControl(CacheControl.noStore())
-                    .header("X-Warmup-Duration-ms", String.valueOf(ms))
-                    .header("X-Warmup-Error", "partial")
-                    .build();
-        }
+        warmupService.warmUpAsync();
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .header("X-Warmup-Started", "true")
+                .build();
     }
 
     @PostMapping("/create")
