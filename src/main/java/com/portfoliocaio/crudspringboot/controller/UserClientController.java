@@ -1,6 +1,11 @@
 package com.portfoliocaio.crudspringboot.controller;
 
-import org.springframework.http.CacheControl;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,14 +42,37 @@ public class UserClientController {
     private final JwtService jwtService;
     private final WarmupService warmupService;
     
-    @PostMapping("/ping")
-    public ResponseEntity<Void> preventColdStart() {
-        warmupService.warmUpAsync();
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .header("X-Warmup-Started", "true")
-                .build();
-    }
+    @CrossOrigin(
+	    origins = "https://projeto-login-client-side.vercel.app",
+	    methods = { RequestMethod.POST, RequestMethod.OPTIONS },
+	    allowedHeaders = { "Content-Type", "Authorization" },
+	    exposedHeaders = { "Authorization" },
+	    allowCredentials = "true",
+	    maxAge = 3600
+	)
+	@PostMapping(path = "/ping", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Map<String, Object>> preventColdStart() {
+	    long start = System.nanoTime();
+	    try {
+	        warmupService.warmUpAsync();
+
+	        String warmToken = jwtService.generateToken("warmup@local");
+	        jwtService.isValid(warmToken);
+	        jwtService.extractSubject(warmToken);
+
+	        long ms = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start);
+
+	        Map<String, Object> body = new LinkedHashMap<>();
+	        body.put("status", "ok");
+	        body.put("tookMs", ms);
+	        return ResponseEntity.ok(body);
+	    } catch (Exception e) {
+	        Map<String, Object> body = new LinkedHashMap<>();
+	        body.put("status", "error");
+	        body.put("message", e.getMessage());
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	    }
+	}
 
     @PostMapping("/create")
     public ResponseEntity<Void> createUser(@Valid @RequestBody UserDto body) { 
