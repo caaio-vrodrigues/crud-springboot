@@ -70,7 +70,8 @@ public class UserClientController {
 	        Map<String, Object> body = new LinkedHashMap<>();
 	        body.put("status", "error");
 	        body.put("message", e.getMessage());
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+	        return ResponseEntity
+	        		.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
 	    }
 	}
 
