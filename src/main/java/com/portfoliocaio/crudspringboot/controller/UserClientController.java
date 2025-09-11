@@ -96,29 +96,6 @@ public class UserClientController {
         }
     }
     
-    @GetMapping("/validate")
-    public ResponseEntity<?> validateToken(
-        @RequestHeader("Authorization") String authorization) 
-    {
-        try {
-            String token = authorization.replace("Bearer ", "").trim();
-            if (!jwtService.isValid(token)) {
-                return ResponseEntity
-                    .status(401)
-                    .body(ErrorPayload
-                    		.of(401, "Token inválido", "/auth/validate"));
-            }
-            String email = jwtService.extractSubject(token);
-            Long exp = null;
-            return ResponseEntity.ok(new ValidateTokenResponse(true, email, exp));
-        } 
-        catch (Exception e) {
-            return ResponseEntity
-	            .status(401)
-	            .body(ErrorPayload.of(401, "Token inválido", "/auth/validate"));
-        }
-    }
-    
     @GetMapping
     public ResponseEntity<?> readUser(
         @RequestParam(required = true) String email,
